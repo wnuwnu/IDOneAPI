@@ -14,6 +14,7 @@ open class IDOneAPI {
     
     private let session: URLSession = URLSession.shared
     
+    //일반적으로 사용하는 post Function
     private func post(url: URL, body: NSMutableDictionary, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws {
         var request: URLRequest = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -22,6 +23,49 @@ open class IDOneAPI {
         request.httpBody = try JSONSerialization.data(withJSONObject: body, options: JSONSerialization.WritingOptions.prettyPrinted)
         session.dataTask(with: request, completionHandler: completionHandler).resume()
     }
+    
+    //MARK:- 회원가입에 사용되는 Upload Function
+    private func upload(url: URL, body: [String:String], completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws {
+        //가입할대 필요한거
+        //xml 파일저장 후 불러오는 과정이 필요함.
+        let xmlUrl = URL(fileURLWithPath: IDOneConstants.File.File_PATH)
+        var xmlData = Data()
+        
+        do {
+            xmlData = try Data(contentsOf: xmlUrl)
+        }catch{
+            print("error : \(error)")
+        }
+        
+        let boundary = "Boundary-\(UUID().uuidString)"
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("ios.idone.ai", forHTTPHeaderField: "User-Agent")
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        let httpBody = NSMutableData()
+        
+        for (key, value) in body {
+          httpBody.appendString(convertFormField(named: key, value: value, using: boundary))
+        }
+
+        httpBody.append(convertFileData(fieldName: "xml",
+                                        fileName: "iDOne.xml",
+                                        mimeType: "application/xml",
+                                        fileData: xmlData,
+                                        using: boundary))
+
+        httpBody.appendString("--\(boundary)--")
+
+        request.httpBody = httpBody as Data
+
+//        print(String(data: httpBody as Data, encoding: .utf8)!)
+        session.dataTask(with: request, completionHandler: completionHandler).resume()
+    
+    }
+    
     
     //MARK:- 디바이스 아이디 발급
     func get_DeviceId() -> String{
@@ -50,16 +94,7 @@ open class IDOneAPI {
         }
     }
     
-    func dateString(date: Foundation.Date) -> String {
-        
-       
-        
-        let df = DateFormatter()
-        df.dateFormat = "yyyyMMddHHmmss"
-        df.timeZone = TimeZone.current
-        
-        return df.string(from: date)
-    }
+    
     
     //MARK:- 토큰발행
     func token_Issuance(completionHandler: @escaping(Result<IDOneToken, Error>) -> Void ) {
@@ -119,38 +154,20 @@ open class IDOneAPI {
     }
     
     //MARK:- 회원가입
-    func register_Member(completionHandler: @escaping(Result<IDOneResult, Error>) -> Void ) {
-        //가입할대 필요한거
-        //xml 파일저장 후 불러오는 과정이 필요함.
-        let xmlUrl = URL(fileURLWithPath: IDOneConstants.Server.TOKEN_ISSUANCE)
-        var xmlData = Data()
-        do {
-            xmlData = try Data(contentsOf: xmlUrl)
-        }catch{
-            print("error : \(error)")
-        }
+    func register_Member(userId:String, token:String, apnsId:String, countryCode:String, completionHandler: @escaping(Result<IDOneResult, Error>) -> Void ) {
         
-        let request = URLRequest(multipartFormData: { (formData) in
-                                                      //2. Example with Data of a file
-                                                          formData.append(file: xmlData, name: "xml", fileName: "iDOne.xml", mimeType: "application/xml")
-                                                      //3. Example of key/value pair
-                                                          formData.append(value: "John Doe", name: "fullName")
-                                                    },
-                                 url: URL(string: IDOneConstants.Server.TOKEN_ISSUANCE)!,
-                                 method: .post,
-                                 headers: [:])
-        
-        let bodyData:NSMutableDictionary = [
-            "login_id": userId,
-            "device_id" : get_DeviceId(),
-            "token": token,
-            "push": ""
-            "country_code":country_code
+        let bodyData:[String: String] = [
+            "device_id":get_DeviceId(),
+            "login_id":userId,
+            "token":token,
+            "push":apnsId,
+            "country_code":countryCode,
+            
         ]
         
         do {
             
-            try post(url: URL(string: IDOneConstants.Server.TOKEN_ISSUANCE)!, body: bodyData, completionHandler: {
+            try upload(url: URL(string: IDOneConstants.Server.UPLOAD_BLOCKCHAIN)!, body: bodyData, completionHandler: {
                 data, response, error in
 
                 do{
@@ -171,4 +188,48 @@ open class IDOneAPI {
         
     }
     
+}
+
+//추가적으로 사용하는 함수들.
+extension IDOneAPI {
+    
+    //DeviceId 발급에 필요한 날짜를 추출할때에 사용하는 formatter
+    func dateString(date: Foundation.Date) -> String {
+        let df = DateFormatter()
+        df.dateFormat = "yyyyMMddHHmmss"
+        df.timeZone = TimeZone.current
+        
+        return df.string(from: date)
+    }
+    
+    //upload 에 사용되는 Function(1)
+    func convertFormField(named name: String, value: String, using boundary: String) -> String {
+      var fieldString = "--\(boundary)\r\n"
+      fieldString += "Content-Disposition: form-data; name=\"\(name)\"\r\n"
+      fieldString += "\r\n"
+      fieldString += "\(value)\r\n"
+
+      return fieldString
+    }
+    
+    //upload 에 사용되는 Function(2)
+    func convertFileData(fieldName: String, fileName: String, mimeType: String, fileData: Data, using boundary: String) -> Data {
+        let data = NSMutableData()
+        data.appendString("--\(boundary)\r\n")
+        data.appendString("Content-Disposition: form-data; name=\"\(fieldName)\"; filename=\"\(fileName)\"\r\n")
+        data.appendString("Content-Type: \(mimeType)\r\n\r\n")
+        data.append(fileData)
+        data.appendString("\r\n")
+        
+        return data as Data
+    }
+}
+
+//upload 에 사용되는 Function(3)
+extension NSMutableData {
+  func appendString(_ string: String) {
+    if let data = string.data(using: .utf8) {
+      self.append(data)
+    }
+  }
 }
