@@ -184,8 +184,190 @@ open class IDOneAPI {
         }catch(let error){
             completionHandler(.failure(error))
         }
+    }
+    
+    //MARK:- 이더리움 상태 확인
+    func get_Info(completionHandler: @escaping(Result<IDOneResult, Error>) -> Void ) {
         
+        let bodyData:NSMutableDictionary = [
+            "device_id" : get_DeviceId()
+        ]
         
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.GET_INFO)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneResult.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
+    
+    //MARK:- 로그인
+    func login(userId:String, token:String, apnsId:String, countryCode:String, completionHandler: @escaping(Result<IDOneResult, Error>) -> Void ) {
+        
+        let bodyData:NSMutableDictionary = [
+            "device_id": get_DeviceId(),
+            "login_id": userId,
+            "push": apnsId,
+            "country_code": countryCode,
+            "token": token
+        ]
+        
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.LOGIN)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneResult.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
+    
+    //MARK:- xml 이메일 데이터 추가
+    func setEmail(userId:String, email:String, completionHandler: @escaping(Result<IDOneResult, Error>) -> Void ) {
+        
+        let bodyData:NSMutableDictionary = [
+            "device_id": get_DeviceId(),
+            "login_id": userId,
+            "enc_data": [
+                "authType": "Email",
+                "email": email
+            ]
+        ]
+        
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.SET_ENC_DATA)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneResult.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
+    
+    //MARK:- xml 핸드폰번호 데이터 추가
+    func setPhone(userId:String, phone:String, completionHandler: @escaping(Result<IDOneResult, Error>) -> Void ) {
+        
+        let bodyData:NSMutableDictionary = [
+            "device_id": get_DeviceId(),
+            "login_id": userId,
+            "enc_data": [
+                "authType": "Phone",
+                "phoneNumber": phone
+            ]
+        ]
+        
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.SET_ENC_DATA)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneResult.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
+    
+    //MARK:- xml 신분증 데이터 추가
+    func setIDCard(idCard: [String:String], userId:String, completionHandler: @escaping(Result<IDOneResult, Error>) -> Void ) {
+        
+        var getIdCard:[String:String] = idCard
+        var licenseType = ""
+        
+        if getIdCard["type"] == "National ID Card" {
+            licenseType = "National ID Card"
+        }else if getIdCard["type"] == "Driver License"{
+            licenseType = "Driver License"
+        }else if getIdCard["type"] == "PASSPORT"{
+            licenseType = "PASSPORT"
+        }else if getIdCard["type"] == "Driver License (US)"{
+            licenseType = "Driver License (US)"
+        }
+        
+        getIdCard.removeValue(forKey: "type")
+        
+        var data:[String:String] = ["key":"","value":""]
+        var appendData:[[String:String]] = []
+        for (key, value) in getIdCard {
+            data.updateValue(key, forKey: "key")
+            data.updateValue(value, forKey: "value")
+            appendData.append(data)
+        }
+        
+        let bodyData:NSMutableDictionary = [
+            "device_id": get_DeviceId(),
+            "login_id": userId,
+            "enc_data": [
+                "authType": "IdCard",
+                "licenseType":licenseType,
+                "licenseTypeInfos":appendData,
+                "phoneNumber": "null",
+                "email": "null"
+            ]
+        ]
+        
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.SET_ENC_DATA)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneResult.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
     }
     
 }
@@ -194,7 +376,7 @@ open class IDOneAPI {
 extension IDOneAPI {
     
     //DeviceId 발급에 필요한 날짜를 추출할때에 사용하는 formatter
-    func dateString(date: Foundation.Date) -> String {
+    private func dateString(date: Foundation.Date) -> String {
         let df = DateFormatter()
         df.dateFormat = "yyyyMMddHHmmss"
         df.timeZone = TimeZone.current
@@ -203,7 +385,7 @@ extension IDOneAPI {
     }
     
     //upload 에 사용되는 Function(1)
-    func convertFormField(named name: String, value: String, using boundary: String) -> String {
+    private func convertFormField(named name: String, value: String, using boundary: String) -> String {
       var fieldString = "--\(boundary)\r\n"
       fieldString += "Content-Disposition: form-data; name=\"\(name)\"\r\n"
       fieldString += "\r\n"
@@ -213,7 +395,7 @@ extension IDOneAPI {
     }
     
     //upload 에 사용되는 Function(2)
-    func convertFileData(fieldName: String, fileName: String, mimeType: String, fileData: Data, using boundary: String) -> Data {
+    private func convertFileData(fieldName: String, fileName: String, mimeType: String, fileData: Data, using boundary: String) -> Data {
         let data = NSMutableData()
         data.appendString("--\(boundary)\r\n")
         data.appendString("Content-Disposition: form-data; name=\"\(fieldName)\"; filename=\"\(fileName)\"\r\n")
