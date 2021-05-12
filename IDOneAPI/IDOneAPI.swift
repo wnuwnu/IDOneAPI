@@ -24,7 +24,7 @@ open class IDOneAPI {
         session.dataTask(with: request, completionHandler: completionHandler).resume()
     }
     
-    //MARK:- 회원가입에 사용되는 Upload Function
+    //회원가입에 사용되는 Upload Function
     private func upload(url: URL, body: [String:String], completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws {
         //가입할대 필요한거
         //xml 파일저장 후 불러오는 과정이 필요함.
@@ -370,6 +370,184 @@ open class IDOneAPI {
         }
     }
     
+    //MARK:- xml 데이터 수정 확인 (이더리움 스테이터스)
+    func get_modify_status(userId:String, phone:String, completionHandler: @escaping(Result<IDOneResult, Error>) -> Void ) {
+        
+        let bodyData:NSMutableDictionary = [
+            "device_id": get_DeviceId(),
+            "login_id": userId,
+        ]
+        
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.GET_MODIFY_STATUS)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneResult.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
+    
+    //MARK:- 초기화
+    func user_reset(userId:String, phone:String, completionHandler: @escaping(Result<IDOneResult, Error>) -> Void ) {
+        
+        let bodyData:NSMutableDictionary = [
+            "device_id": get_DeviceId(),
+            "login_id": userId,
+        ]
+        
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.USER_RESET)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneResult.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
+    
+    //MARK:- DID LIST
+    func did_list(userId:String, phone:String, completionHandler: @escaping(Result<IDOneDID, Error>) -> Void ) {
+        
+        let bodyData:NSMutableDictionary = [
+            "login_id": userId,
+        ]
+        
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.GET_LICENSE_TYPE)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneDID.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
+    
+    //MARK:- SMS, Email 인증 요청
+    func auth_request(type:AuthRequestEnum, input:String, countryCode:String, completionHandler: @escaping(Result<IDOneAuth, Error>) -> Void ) {
+        
+        let bodyData:NSMutableDictionary = [
+            "device_id": get_DeviceId(),
+            "info" : input,
+            "type" : type.rawValue,
+            "country_code" : countryCode
+        ]
+        
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.AUTH_REQUEST)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneAuth.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
+    
+    //MARK:- SMS, Email 인증 결과
+    func auth_verify(type:AuthRequestEnum, cipertext:String, code:String, completionHandler: @escaping(Result<IDOneResult, Error>) -> Void ) {
+        
+        let bodyData:NSMutableDictionary = [
+            "device_id": get_DeviceId(),
+            "cipertext" : cipertext,
+            "code" : code,
+            "type" : type.rawValue
+        ]
+        
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.AUTH_VERIFY)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneResult.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
+    
+    //MARK:- SMS, Email 인증 결과
+    func get(type:AuthRequestEnum, cipertext:String, code:String, completionHandler: @escaping(Result<IDOneResult, Error>) -> Void ) {
+        
+        let bodyData:NSMutableDictionary = [
+            "device_id": get_DeviceId(),
+            "cipertext" : cipertext,
+            "code" : code,
+            "type" : type.rawValue
+        ]
+        
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.AUTH_VERIFY)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneResult.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
 }
 
 //추가적으로 사용하는 함수들.

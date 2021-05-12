@@ -15,13 +15,9 @@ internal class IDOneResult:Decodable{
     //xml 데이터 수정 확인
     //sms, email 인증 결과
     //복구완료
+    //수정확인
     let result_code: Int?
     let msg: String?
 }
 
-internal class IDOneToken: IDOneResult{
-    
-    let access_token: String? = nil
-    
-}
 
