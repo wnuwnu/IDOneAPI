@@ -518,23 +518,109 @@ open class IDOneAPI {
         }
     }
     
-    //MARK:- SMS, Email 인증 결과
-    func get(type:AuthRequestEnum, cipertext:String, code:String, completionHandler: @escaping(Result<IDOneResult, Error>) -> Void ) {
+    //MARK:- 복구용 암호화 데이터 전달
+    func get_restore_data(loginId: String, countryCode:String, completionHandler: @escaping(Result<IDOneRestore, Error>) -> Void ) {
         
         let bodyData:NSMutableDictionary = [
-            "device_id": get_DeviceId(),
-            "cipertext" : cipertext,
-            "code" : code,
-            "type" : type.rawValue
+            "login_id" : loginId,
+            "country_code" : countryCode,
+            "tag" : "BioAuth"
         ]
-        
+
         do {
             
-            try post(url: URL(string: IDOneConstants.Server.AUTH_VERIFY)!, body: bodyData, completionHandler: {
+            try post(url: URL(string: IDOneConstants.Server.GET_RESTORE_DATA)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneRestore.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
+    
+    //MARK:- 복구 완료 / 디바이스 아이디 수정
+    func user_restore(loginId: String, deviceId:String, token:String, completionHandler: @escaping(Result<IDOneResult, Error>) -> Void ) {
+        
+        let bodyData:NSMutableDictionary = [
+            "login_id" : loginId,
+            "device_id" : deviceId,
+            "token" : token
+        ]
+
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.USER_RESTORE)!, body: bodyData, completionHandler: {
                 data, response, error in
 
                 do{
                     let result = try JSONDecoder().decode(IDOneResult.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
+    
+    //MARK:- 인증별 유무 확인
+    func get_authentication_info(loginId: String, deviceId:String, token:String, completionHandler: @escaping(Result<IDOneAuthType, Error>) -> Void ) {
+        
+        let bodyData:NSMutableDictionary = [
+            "login_id" : loginId
+        ]
+
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.GET_AUTHENTICATION_INFO)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneAuthType.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
+    
+    //BioAuth, IdCard, UserInfo, UserID 4가지 제공
+    //MARK:- 유저 정보 가져오기
+    func get_user_info(loginId: String, deviceId:String, token:String, completionHandler: @escaping(Result<IDOneAuthType, Error>) -> Void ) {
+        
+        let bodyData:NSMutableDictionary = [
+            "login_id" : loginId
+        ]
+
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.GET_USER_INFO)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneAuthType.self, from: data!)
                     
                     completionHandler(.success(result))
                     
