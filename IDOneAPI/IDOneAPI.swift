@@ -606,12 +606,14 @@ open class IDOneAPI {
         }
     }
     
-    //BioAuth, IdCard, UserInfo, UserID 4가지 제공
     //MARK:- 유저 정보 가져오기
-    func get_user_info(loginId: String, deviceId:String, token:String, completionHandler: @escaping(Result<IDOneAuthType, Error>) -> Void ) {
+    func get_user_info(loginId: String, tag:UserInfoEnum, token:String, completionHandler: @escaping(Result<IDOneUserInfo, Error>) -> Void ) {
         
         let bodyData:NSMutableDictionary = [
-            "login_id" : loginId
+            "device_id": get_DeviceId(),
+            "login_id": loginId,
+            "token": token,
+            "tag": tag.rawValue
         ]
 
         do {
@@ -620,7 +622,39 @@ open class IDOneAPI {
                 data, response, error in
 
                 do{
-                    let result = try JSONDecoder().decode(IDOneAuthType.self, from: data!)
+                    let result = try JSONDecoder().decode(IDOneUserInfo.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
+    
+    //MARK:- 유저 정보 가져오기(Type선택)
+    func get_user_info(loginId: String, tag:UserInfoEnum, type:String, token:String, completionHandler: @escaping(Result<IDOneUserInfo, Error>) -> Void ) {
+        
+        let bodyData:NSMutableDictionary = [
+            "device_id": get_DeviceId(),
+            "login_id": loginId,
+            "token": token,
+            "tag": tag.rawValue,
+            "type":type
+        ]
+
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.GET_USER_INFO)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneUserInfo.self, from: data!)
                     
                     completionHandler(.success(result))
                     

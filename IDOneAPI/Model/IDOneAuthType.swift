@@ -6,6 +6,7 @@
 //
 
 import Foundation
+
 internal class IDOneAuthType:IDOneResult {
     let response:typeResponse? = nil
 }
