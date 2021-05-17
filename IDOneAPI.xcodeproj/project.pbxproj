@@ -20,6 +20,8 @@
 		C8E5AC34264934A200E1DC15 /* IDOneBioAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E5AC33264934A200E1DC15 /* IDOneBioAuth.swift */; };
 		C8E5AC36264BA43F00E1DC15 /* IDOneRestore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E5AC35264BA43F00E1DC15 /* IDOneRestore.swift */; };
 		C8E5AC38264BA72700E1DC15 /* IDOneAuthType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E5AC37264BA72700E1DC15 /* IDOneAuthType.swift */; };
+		C8E5AC3A2652024000E1DC15 /* IDOneUserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E5AC392652024000E1DC15 /* IDOneUserInfo.swift */; };
+		C8E5AC3C2652391B00E1DC15 /* UserInfoEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E5AC3B2652391B00E1DC15 /* UserInfoEnum.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +40,8 @@
 		C8E5AC33264934A200E1DC15 /* IDOneBioAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IDOneBioAuth.swift; sourceTree = "<group>"; };
 		C8E5AC35264BA43F00E1DC15 /* IDOneRestore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IDOneRestore.swift; sourceTree = "<group>"; };
 		C8E5AC37264BA72700E1DC15 /* IDOneAuthType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IDOneAuthType.swift; sourceTree = "<group>"; };
+		C8E5AC392652024000E1DC15 /* IDOneUserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IDOneUserInfo.swift; sourceTree = "<group>"; };
+		C8E5AC3B2652391B00E1DC15 /* UserInfoEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInfoEnum.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +88,7 @@
 			isa = PBXGroup;
 			children = (
 				C8E5AC2F264922C800E1DC15 /* AuthRequestEnum.swift */,
+				C8E5AC3B2652391B00E1DC15 /* UserInfoEnum.swift */,
 				C820B1BA25EE2D3D009C9B81 /* IDOneResult.swift */,
 				C8E5AC2B2649213800E1DC15 /* IDOneToken.swift */,
 				C8E5AC2D2649214900E1DC15 /* IDOneDID.swift */,
@@ -91,6 +96,7 @@
 				C8E5AC33264934A200E1DC15 /* IDOneBioAuth.swift */,
 				C8E5AC35264BA43F00E1DC15 /* IDOneRestore.swift */,
 				C8E5AC37264BA72700E1DC15 /* IDOneAuthType.swift */,
+				C8E5AC392652024000E1DC15 /* IDOneUserInfo.swift */,
 				C820B1C325EF4BA0009C9B81 /* URLRequest+extension.swift */,
 			);
 			path = Model;
@@ -186,7 +192,9 @@
 				C8E5AC36264BA43F00E1DC15 /* IDOneRestore.swift in Sources */,
 				C8E5AC38264BA72700E1DC15 /* IDOneAuthType.swift in Sources */,
 				C820B1BB25EE2D3D009C9B81 /* IDOneResult.swift in Sources */,
+				C8E5AC3C2652391B00E1DC15 /* UserInfoEnum.swift in Sources */,
 				C820B1C425EF4BA0009C9B81 /* URLRequest+extension.swift in Sources */,
+				C8E5AC3A2652024000E1DC15 /* IDOneUserInfo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
