@@ -668,6 +668,102 @@ open class IDOneAPI {
             completionHandler(.failure(error))
         }
     }
+    
+    //MARK:- 중수준 인증 데이터 가져오기
+    func get_medium_auth(loginId: String, token:String, completionHandler: @escaping(Result<MediumData, Error>) -> Void ) {
+        
+        let bodyData:NSMutableDictionary = [
+            "login_id": loginId,
+            "token": token
+        ]
+
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.GET_MEDIUM_AUTH)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(MediumData.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
+    
+    //MARK:- 고수준 인증 데이터 가져오기
+    func get_high_auth(loginId: String, token:String, completionHandler: @escaping(Result<HighData, Error>) -> Void ) {
+        
+        let bodyData:NSMutableDictionary = [
+            "login_id": loginId,
+            "token": token
+        ]
+
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.GET_MEDIUM_AUTH)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(HighData.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
+    
+    //MARK:- 중∙고수준 인증 서버전송
+    func set_auth(loginId: String, token:String, responseId:String, completionHandler: @escaping(Result<IDOneResult, Error>) -> Void ) {
+        
+        let now = Date()
+        let dateformatter = DateFormatter()
+        dateformatter.dateFormat = "yyyy.MM.dd HH:mm:ss"
+        let signTimeStr = dateformatter.string(from: now)
+        
+        let bodyData:NSMutableDictionary = [
+            "login_id": loginId,
+            "token": token,
+            "response_id": responseId,
+            "data":[
+                "data1":signTimeStr
+            ]
+        ]
+
+        do {
+            
+            try post(url: URL(string: IDOneConstants.Server.SET_MEDIUM_AUTH)!, body: bodyData, completionHandler: {
+                data, response, error in
+
+                do{
+                    let result = try JSONDecoder().decode(IDOneResult.self, from: data!)
+                    
+                    completionHandler(.success(result))
+                    
+                    
+                }catch(let error){
+                    completionHandler(.failure(error))
+                }
+
+            })
+        }catch(let error){
+            completionHandler(.failure(error))
+        }
+    }
 }
 
 //추가적으로 사용하는 함수들.
